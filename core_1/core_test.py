@@ -3,6 +3,7 @@ import zipfile
 import io
 import msgpack
 import gzip
+import lz4.frame
 
 from lxml import etree
 from core_1.BD.model import DynamicTableManager
@@ -20,6 +21,7 @@ def main():
     file_save_name_xmlz = "output.xmlz"
     file_save_name_msgpack = "output.msgpack"
     file_save_name_msgpackZ = "output_zip.msgpack"
+    file_save_name_lz4 = "output_lz4.msgpack"
 
     # Получаем данные из файла
     common_data = get_data_from_excel(path_file, sheet_number)
@@ -29,31 +31,47 @@ def main():
 
     # === БД ===========================================================================
     # Заполняем БД данными
-    # filling_DB_with_data(db_url, "people", dict_data)
+    print('=== БД ====================')
+    filling_DB_with_data(db_url, "people", dict_data)
 
+    # === Excel ===========================================================================
+    print('=== Excel ====================')
     # Сохраняем данные в файл
-    # save_data_to_excel_fast(dict_data, file_save_name_xlsx)
+    save_data_to_excel_fast(dict_data, file_save_name_xlsx)
 
     # === xml ===========================================================================
+    print('=== xml ====================')
     # Сохраняем данные в xml
-    # save_data_to_compressed_xml(dict_data, file_save_name_xmlz)
+    save_data_to_compressed_xml(dict_data, file_save_name_xmlz)
 
     # Получение данные в xml
-    # read_compressed_xml(file_save_name_xmlz)
+    read_compressed_xml(file_save_name_xmlz)
 
     # === msgpack ===========================================================================
+    print('=== msgpack ====================')
     # Сохраняем данные в msgpack
     save_data_fast(dict_data, file_save_name_msgpack)
 
     # Получение данные в msgpack
-    read_data_fast(file_save_name_msgpack)
+    data_1 = read_data_fast(file_save_name_msgpack)
 
     # === msgpack zip ===========================================================================
+    print('=== msgpack zip ====================')
     # Сохраняем данные в msgpack
     save_compressed_msgpack(dict_data, file_save_name_msgpackZ)
 
     # Получение данные в msgpack
-    load_compressed_msgpack(file_save_name_msgpackZ)
+    data_2 = load_compressed_msgpack(file_save_name_msgpackZ)
+
+    # === msgpack lz4 ===========================================================================
+    print('=== msgpack lz4 ====================')
+    # Сохраняем данные в msgpack
+    save_lz4_msgpack(dict_data, file_save_name_lz4)
+
+    # Получение данные в msgpack
+    data_3 = load_lz4_msgpack(file_save_name_lz4)
+
+    pass
 
 
 @execution_time
@@ -171,15 +189,33 @@ def save_data_fast(data, filename):
 def read_data_fast(filename):
     with open(filename, "rb") as f:
         return msgpack.unpack(f)
+
+
 @execution_time
 def save_compressed_msgpack(data, filename):
     packed = msgpack.packb(data)
-    with gzip.open(filename, 'wb') as f:
+    with gzip.open(filename, "wb") as f:
         f.write(packed)
+
+
 @execution_time
 def load_compressed_msgpack(filename):
-    with gzip.open(filename, 'rb') as f:
+    with gzip.open(filename, "rb") as f:
         packed = f.read()
+    return msgpack.unpackb(packed)
+
+@execution_time
+def save_lz4_msgpack(data, filename):
+    packed = msgpack.packb(data)
+    compressed = lz4.frame.compress(packed)
+    with open(filename, 'wb') as f:
+        f.write(compressed)
+
+@execution_time
+def load_lz4_msgpack(filename):
+    with open(filename, 'rb') as f:
+        compressed = f.read()
+    packed = lz4.frame.decompress(compressed)
     return msgpack.unpackb(packed)
 
 

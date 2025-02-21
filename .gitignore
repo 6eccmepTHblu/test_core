@@ -171,3 +171,7 @@ cython_debug/
 .msgpack
 /core_1/output_zip.msgpack
 /core_1/output.msgpack
+/core_1/dynamic_tables.db
+/core_1/output.xlsx
+/core_1/output.xmlz
+/core_1/output_lz4.msgpack
