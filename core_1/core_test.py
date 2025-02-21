@@ -27,24 +27,28 @@ def main():
     # Конвертируем данные в словарь
     dict_data = converter_data_in_dict(common_data)
 
+    # === БД ===========================================================================
     # Заполняем БД данными
     # filling_DB_with_data(db_url, "people", dict_data)
 
     # Сохраняем данные в файл
     # save_data_to_excel_fast(dict_data, file_save_name_xlsx)
 
+    # === xml ===========================================================================
     # Сохраняем данные в xml
     # save_data_to_compressed_xml(dict_data, file_save_name_xmlz)
 
     # Получение данные в xml
     # read_compressed_xml(file_save_name_xmlz)
 
+    # === msgpack ===========================================================================
     # Сохраняем данные в msgpack
     save_data_fast(dict_data, file_save_name_msgpack)
 
     # Получение данные в msgpack
     read_data_fast(file_save_name_msgpack)
 
+    # === msgpack zip ===========================================================================
     # Сохраняем данные в msgpack
     save_compressed_msgpack(dict_data, file_save_name_msgpackZ)
 
